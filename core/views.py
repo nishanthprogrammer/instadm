@@ -1,16 +1,24 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-@csrf_exempt  # ✅ CSRF disabled for this webhook view
+VERIFY_TOKEN = "Nishanth@_instadm18"
+
+@csrf_exempt
 def webhook(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            user = data.get('user')
-            comment = data.get('comment')
-            return JsonResponse({'news': f"Received {comment} from {user}"})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-    else:
-        return JsonResponse({'error': 'Only POST Requests allowed in webhooks'}, status=405)
+    if request.method == "GET":
+        verify_token = request.GET.get("hub.verify_token")
+        challenge = request.GET.get("hub.challenge")
+        mode = request.GET.get("hub.mode")
+
+        if mode == "subscribe" and verify_token == VERIFY_TOKEN:
+            return HttpResponse(challenge)
+        else:
+            return HttpResponse("Invalid verification token", status=403)
+
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        print("Received:", data)
+        return JsonResponse({'status': 'ok'})
+
+    return JsonResponse({'error': 'Invalid method'}, status=405)
