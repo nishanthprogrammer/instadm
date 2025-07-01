@@ -17,8 +17,13 @@ def webhook(request):
             return HttpResponse("Invalid verification token", status=403)
 
     elif request.method == "POST":
-        data = json.loads(request.body)
-        print("Instagram sent this -->", request.body)
+        try:
+            data = json.loads(request.body)
+            print("Webhook Received:", json.dumps(data, indent=2))
+        except Exception as e:
+            print("Webhook Error:", str(e))
+            print("Raw Body:", request.body)
         return JsonResponse({'status': 'ok'})
+
 
     return JsonResponse({'error': 'Invalid method'}, status=405)
