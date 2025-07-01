@@ -18,7 +18,7 @@ def webhook(request):
 
     elif request.method == "POST":
         data = json.loads(request.body)
-        print("Received:", data)
+        print("Instagram sent this -->", request.body)
         return JsonResponse({'status': 'ok'})
 
     return JsonResponse({'error': 'Invalid method'}, status=405)
